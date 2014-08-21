@@ -2,7 +2,7 @@
 
 An implementation of the *experimental* [JSON Query Language](https://github.com/clue/json-query-language) in PHP.
 
-> Note: This project is in early alpha stage! Feel free to report any issues you encounter.
+> Note: This project is in beta stage! Feel free to report any issues you encounter.
 
 ## Quickstart example
 
@@ -24,7 +24,7 @@ The recommended way to install this library is [through composer](http://getcomp
 ```JSON
 {
     "require": {
-        "clue/json-query": "dev-master"
+        "clue/json-query": "~0.1.0"
     }
 }
 ```
