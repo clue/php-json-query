@@ -4,7 +4,7 @@ namespace Clue\JsonQuery;
 
 use DomainException;
 
-class QueryExpressionFilter
+class QueryExpressionFilter implements Filter
 {
     private $queryExpression;
     private $selectorSeparator = '.';
