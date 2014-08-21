@@ -9,10 +9,10 @@ An implementation of the *experimental* [JSON Query Language](https://github.com
 Once [installed](#install), you can use the following code to get started:
 
 ```php
-$matcher = new Matcher(array('age' => 20));
+$filter = new QueryExpressionFilter(array('age' => 20));
 
-$matcher->match(array('name' => 'Tester', 'age' => 20))); // true
-$matcher->match(array('name' => 'Tester', 'age' => 22))); // false
+$filter->doesMatch(array('name' => 'Tester', 'age' => 20))); // true
+$filter->doesMatch(array('name' => 'Tester', 'age' => 22))); // false
 ```
 
 See also the [examples](examples).

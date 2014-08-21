@@ -4,19 +4,19 @@ namespace Clue\JsonQuery;
 
 use DomainException;
 
-class Matcher
+class QueryExpressionFilter
 {
-    private $filterExpression;
+    private $queryExpression;
     private $selectorSeparator = '.';
 
-    public function __construct($filterExpression)
+    public function __construct($queryExpression)
     {
-        $this->filterExpression = $filterExpression;
+        $this->queryExpression = $queryExpression;
     }
 
-    public function match($data)
+    public function doesMatch($data)
     {
-        return $this->matchFilter($data, $this->filterExpression);
+        return $this->matchFilter($data, $this->queryExpression);
     }
 
     private function matchFilter($data, $filter)
