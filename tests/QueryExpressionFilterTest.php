@@ -383,9 +383,9 @@ class QueryExpressionFilterTest extends TestCase
     /**
      * @dataProvider dpFetchValue
      */
-    public function testFetchValue($data, $fetch, $expected)
+    public function testFetchValue($data, $fetch, $expected, $separator = '.')
     {
-        $filter = new QueryExpressionFilter(array());
+        $filter = new QueryExpressionFilter(array(), $separator);
         $method = new \ReflectionMethod($filter, 'fetchValue');
         $method->setAccessible(true);
 
@@ -432,8 +432,9 @@ class QueryExpressionFilterTest extends TestCase
                         )
                     )
                 ),
-                'org.computers.pc',
-                'Intel'
+                'org:computers:pc',
+                'Intel',
+                ':'
             ),
             array(
                 array('id' => 1),
