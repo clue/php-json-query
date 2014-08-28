@@ -133,8 +133,18 @@ class QueryExpressionFilter implements Filter
 
     private function fetchValue($data, $column)
     {
-        // TODO: dotted notation
-        return isset($data[$column]) ? $data[$column] : null;
+        $path = explode($this->selectorSeparator, $column);
+
+        $current = $data;
+        foreach ($path as $field) {
+            if (is_array($current) && isset($current[$field])) {
+                $current = $current[$field];
+            } else {
+                return null;
+            }
+        }
+
+        return $current;
     }
 
     private function isObject($value)
