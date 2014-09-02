@@ -118,6 +118,8 @@ class QueryExpressionFilter implements Filter
             return ($actualValue === $expectedValue);
         } elseif ($comparator === '$in') {
             return in_array($actualValue, $expectedValue, true);
+        } elseif ($comparator === '$contains') {
+            return (strpos($actualValue, $expectedValue) !== false);
         } elseif ($comparator === '$lt') {
             return ($actualValue < $expectedValue);
         } elseif ($comparator === '$lte') {

@@ -363,4 +363,23 @@ class QueryExpressionFilterTest extends TestCase
 
         $filter->doesMatch(array('id' => 100));
     }
+
+    public function testAttributeContains()
+    {
+        $filter = new QueryExpressionFilter(array(
+            'name' => array(
+                '$contains' => 'Fried'
+            )
+        ));
+
+        $this->assertFalse($filter->doesMatch(array(
+            'id' => 100,
+            'name' => 'Smith, George'
+        )));
+        $this->assertTrue($filter->doesMatch(array(
+            'id' => 300,
+            'name' => 'Smith, Friedrich'
+        )));
+    }
+
 }
