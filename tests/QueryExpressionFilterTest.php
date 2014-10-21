@@ -212,20 +212,6 @@ class QueryExpressionFilterTest extends TestCase
         $this->assertFalse($filter->doesMatch(array('id' => 100)));
     }
 
-    public function testTrueAlwaysMatches()
-    {
-        $filter = new QueryExpressionFilter(true);
-
-        $this->assertTrue($filter->doesMatch(array('id' => 100)));
-    }
-
-    public function testFalseNeverMatches()
-    {
-        $filter = new QueryExpressionFilter(false);
-
-        $this->assertFalse($filter->doesMatch(array('id' => 100)));
-    }
-
     public function testAttributeNotValue()
     {
         $filter = new QueryExpressionFilter(array(
