@@ -137,6 +137,26 @@ class QueryExpressionFilterTest extends TestCase
         )));
     }
 
+    public function testAndStdObject()
+    {
+        $filter = new QueryExpressionFilter((object)array(
+            '$and' => (object)array(
+                'id' => 100,
+                'name' => 'Test'
+            )
+        ));
+
+        $this->assertTrue($filter->doesMatch((object)array(
+            'id' => 100,
+            'name' => 'Test'
+        )));
+
+        $this->assertFalse($filter->doesMatch((object)array(
+            'id' => 100,
+            'name' => 'invalid'
+        )));
+    }
+
     public function testOrList()
     {
         $filter = new QueryExpressionFilter(array(
