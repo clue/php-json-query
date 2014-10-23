@@ -210,6 +210,15 @@ class QueryExpressionFilterTest extends TestCase
         $this->assertTrue($filter->doesMatch(array('id' => 100)));
     }
 
+    public function testEmptyOrObjectAlwaysMatches()
+    {
+        $filter = new QueryExpressionFilter((object)array(
+            '$or' => (object)array()
+        ));
+
+        $this->assertTrue($filter->doesMatch((object)array('id' => 100)));
+    }
+
     public function testEmptyNotNeverMatches()
     {
         $filter = new QueryExpressionFilter(array(
