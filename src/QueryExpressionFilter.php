@@ -135,6 +135,8 @@ class QueryExpressionFilter implements Filter
         foreach ($path as $field) {
             if (is_array($current) && isset($current[$field])) {
                 $current = $current[$field];
+            } elseif (is_object($current) && isset($current->$field)) {
+                $current = $current->$field;
             } else {
                 return null;
             }

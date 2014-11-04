@@ -18,22 +18,6 @@ class QueryExpressionFilterTest extends TestCase
             'id' => 200
         )));
 
-        $filterNested = new QueryExpressionFilter(array(
-            'nested.attribute' => 250
-        ));
-
-        $this->assertTrue($filterNested->doesMatch(array(
-            'nested' => array(
-                'attribute' => 250
-            )
-        )));
-
-        $this->assertFalse($filterNested->doesMatch(array(
-            'nested' => array(
-                'attribute' => 300
-            )
-        )));
-
         return $filter;
     }
 
@@ -56,6 +40,34 @@ class QueryExpressionFilterTest extends TestCase
     {
         $this->assertFalse($filter->doesMatch(array(
             'name' => 'test'
+        )));
+    }
+
+    public function testNestedAttributeValue()
+    {
+        $filter = new QueryExpressionFilter(array(
+            'nested.attribute' => 250
+        ));
+
+        $this->assertFalse($filter->doesMatch(array()));
+        $this->assertFalse($filter->doesMatch((object)array()));
+
+        $this->assertTrue($filter->doesMatch(array(
+            'nested' => array(
+                'attribute' => 250
+            )
+        )));
+
+        $this->assertTrue($filter->doesMatch((object)array(
+            'nested' => (object)array(
+                'attribute' => 250
+            )
+        )));
+
+        $this->assertFalse($filter->doesMatch(array(
+            'nested' => array(
+                'attribute' => 300
+            )
         )));
     }
 
