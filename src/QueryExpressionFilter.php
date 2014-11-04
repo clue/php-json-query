@@ -23,8 +23,6 @@ class QueryExpressionFilter implements Filter
     {
         if ($this->isObject($filter)) {
             return $this->matchAnd($data, $filter);
-        } elseif (is_bool($filter)) {
-            return $filter;
         } else {
             throw new DomainException('Invalid filter type');
         }
