@@ -30,26 +30,26 @@ class QueryExpressionFilter implements Filter
 
     private function matchOr($data, $filter)
     {
+        $empty = true;
         if ($this->isVector($filter)) {
-            if (!$filter) {
-                return true;
-            }
             foreach ($filter as $element) {
                 if ($this->matchFilter($data, $element)) {
                     return true;
                 }
+                $empty = false;
             }
         } elseif ($this->isObject($filter)) {
             foreach ($filter as $key => $value) {
                 if ($this->matchValue($data, $key, $value)) {
                     return true;
                 }
+                $empty = false;
             }
         } else {
             throw new DomainException('Invalid data type for $or combinator');
         }
 
-        return false;
+        return $empty;
     }
 
     private function matchAnd($data, $filter)
@@ -90,23 +90,21 @@ class QueryExpressionFilter implements Filter
         $expectedValue = $expectation;
         $comparator = '$is';
 
-        if (is_array($expectedValue)) {
-            if ($this->isVector($expectedValue)) {
-                // list of possible values
-                $comparator = '$in';
-            } else {
-                // custom comparator ('>', '<', ...)
-                $comparator = key($expectedValue);
-                $expectedValue = reset($expectedValue);
+        if ($this->isVector($expectedValue)) {
+            // list of possible values
+            $comparator = '$in';
+        } elseif ($this->isObject($expectedValue)) {
+            // custom comparator ('>', '<', ...)
+            $comparator = key($expectedValue);
+            $expectedValue = reset($expectedValue);
 
-                if ($comparator === '$not') {
-                    $comparator = ($this->isVector($expectedValue)) ? '!$in' : '!$is';
-                }
+            if ($comparator === '$not') {
+                $comparator = ($this->isVector($expectedValue)) ? '!$in' : '!$is';
+            }
 
-                if ($comparator[0] === '!') {
-                    $comparator = substr($comparator, 1);
-                    return !$this->matchValue($data, $column, array($comparator => $expectedValue));
-                }
+            if ($comparator[0] === '!') {
+                $comparator = substr($comparator, 1);
+                return !$this->matchValue($data, $column, array($comparator => $expectedValue));
             }
         }
 
@@ -137,6 +135,8 @@ class QueryExpressionFilter implements Filter
         foreach ($path as $field) {
             if (is_array($current) && isset($current[$field])) {
                 $current = $current[$field];
+            } elseif (is_object($current) && isset($current->$field)) {
+                $current = $current->$field;
             } else {
                 return null;
             }
@@ -147,7 +147,7 @@ class QueryExpressionFilter implements Filter
 
     private function isObject($value)
     {
-        return (is_array($value) && ($value === array() || !isset($value[0])));
+        return (is_object($value) || (is_array($value) && ($value === array() || !isset($value[0]))));
     }
 
     private function isVector($value)
