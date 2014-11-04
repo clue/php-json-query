@@ -18,6 +18,22 @@ class QueryExpressionFilterTest extends TestCase
             'id' => 200
         )));
 
+        $filterNested = new QueryExpressionFilter(array(
+            'nested.attribute' => 250
+        ));
+
+        $this->assertTrue($filterNested->doesMatch(array(
+            'nested' => array(
+                'attribute' => 250
+            )
+        )));
+
+        $this->assertFalse($filterNested->doesMatch(array(
+            'nested' => array(
+                'attribute' => 300
+            )
+        )));
+
         return $filter;
     }
 
@@ -362,5 +378,68 @@ class QueryExpressionFilterTest extends TestCase
         ));
 
         $filter->doesMatch(array('id' => 100));
+    }
+
+    /**
+     * @dataProvider dpFetchValue
+     */
+    public function testFetchValue($data, $fetch, $expected)
+    {
+        $filter = new QueryExpressionFilter(array());
+        $method = new \ReflectionMethod($filter, 'fetchValue');
+        $method->setAccessible(true);
+
+        $this->assertEquals(
+            $expected,
+            $method->invoke($filter, $data, $fetch)
+        );
+    }
+
+    public function dpFetchValue()
+    {
+        return array(
+            array(
+                array('id' => 1),
+                'id',
+                1
+            ),
+            array(
+                array(
+                    'org' => array(
+                        'peoples' => array(
+                            'john' => array(
+                                'weight' => 80
+                            )
+                        )
+                    )
+                ),
+                'org.peoples.john',
+                array(
+                    'weight' => 80
+                )
+            ),
+            array(
+                array(
+                    'org' => array(
+                        'peoples' => array(
+                            'john' => array(
+                                'weight' => 80
+                            )
+                        ),
+                        'computers' => array(
+                            'pc' => 'Intel',
+                            'macbook' => 'Macbook Pro'
+                        )
+                    )
+                ),
+                'org.computers.pc',
+                'Intel'
+            ),
+            array(
+                array('id' => 1),
+                'unexpected',
+                null
+            ),
+        );
     }
 }
