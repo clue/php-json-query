@@ -7,11 +7,12 @@ use DomainException;
 class QueryExpressionFilter implements Filter
 {
     private $queryExpression;
-    private $selectorSeparator = '.';
+    private $selectorSeparator;
 
-    public function __construct($queryExpression)
+    public function __construct($queryExpression, $selectorSeparator = '.')
     {
         $this->queryExpression = $queryExpression;
+        $this->selectorSeparator = $selectorSeparator;
     }
 
     public function doesMatch($data)
