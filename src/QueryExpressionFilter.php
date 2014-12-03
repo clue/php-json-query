@@ -115,7 +115,17 @@ class QueryExpressionFilter implements Filter
         } elseif ($comparator === '$in') {
             return in_array($actualValue, $expectedValue, true);
         } elseif ($comparator === '$contains') {
-            return (strpos($actualValue, $expectedValue) !== false);
+            if ($this->isObject($actualValue)) {
+                if (is_object($actualValue)) {
+                    return property_exists($actualValue, $expectedValue);
+                } else {
+                    return array_key_exists($expectedValue, $actualValue);
+                }
+            } elseif ($this->isVector($actualValue)) {
+                return in_array($expectedValue, $actualValue, true);
+            } else {
+                return (strpos($actualValue, $expectedValue) !== false);
+            }
         } elseif ($comparator === '$lt') {
             return ($actualValue < $expectedValue);
         } elseif ($comparator === '$lte') {

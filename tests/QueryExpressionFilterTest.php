@@ -349,6 +349,78 @@ class QueryExpressionFilterTest extends TestCase
         $this->assertTrue($filter->doesMatch(array('id' => 300)));
     }
 
+    public function testAttributeContainsString()
+    {
+        $filter = new QueryExpressionFilter(array(
+            'key' => array(
+                '$contains' => 'value'
+            )
+        ));
+
+        $this->assertTrue($filter->doesMatch(array(
+            'key' => 'the value exist'
+        )));
+        $this->assertFalse($filter->doesMatch(array(
+            'key' => 'empty'
+        )));
+    }
+
+    public function testAttributeContainsArray()
+    {
+        $filter = new QueryExpressionFilter(array(
+            'key' => array(
+                '$contains' => 'value'
+            )
+        ));
+
+        $this->assertTrue($filter->doesMatch(array(
+            'key' => array('the', 'value', 'exists')
+        )));
+        $this->assertFalse($filter->doesMatch(array(
+            'key' => array('not', 'present')
+        )));
+    }
+
+    public function testAttributeContainsAssoc()
+    {
+        $filter = new QueryExpressionFilter(array(
+            'key' => array(
+                '$contains' => 'value'
+            )
+        ));
+
+        $this->assertTrue($filter->doesMatch(array(
+            'key' => array(
+                'value' => 123
+            )
+        )));
+        $this->assertFalse($filter->doesMatch(array(
+            'key' => array(
+                'not' => 'present'
+            )
+        )));
+    }
+
+    public function testAttributeContainsObject()
+    {
+        $filter = new QueryExpressionFilter(array(
+            'key' => array(
+                '$contains' => 'value'
+            )
+        ));
+
+        $this->assertTrue($filter->doesMatch((object)array(
+            'key' => (object)array(
+                'value' => 123
+            )
+        )));
+        $this->assertFalse($filter->doesMatch((object)array(
+            'key' => (object)array(
+                'not' => 'present'
+            )
+        )));
+    }
+
     /**
      * @expectedException DomainException
      */
