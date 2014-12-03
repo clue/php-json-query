@@ -173,9 +173,7 @@ class QueryExpressionFilter implements Filter
             throw new DomainException('Unknown comparator "' . $comparator . '" given');
         }
 
-        $ret = $this->comparators[$comparator]($actualValue, $expectedValue);
-
-        return ($negate) ? !$ret : $ret;
+        return $this->comparators[$comparator]($actualValue, $expectedValue) XOR $negate;
     }
 
     /** @internal */
