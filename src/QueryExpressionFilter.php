@@ -164,8 +164,8 @@ class QueryExpressionFilter implements Filter
     public function matchComparator($actualValue, $comparator, $expectedValue)
     {
         $negate = false;
-        if ($comparator[0] === '!') {
-            $negate = true;
+        while ($comparator[0] === '!') {
+            $negate = !$negate;
             $comparator = substr($comparator, 1);
         }
 
