@@ -24,7 +24,7 @@ The recommended way to install this library is [through composer](http://getcomp
 ```JSON
 {
     "require": {
-        "clue/json-query": "~0.1.0"
+        "clue/json-query": "~0.2.0"
     }
 }
 ```

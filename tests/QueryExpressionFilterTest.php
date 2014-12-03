@@ -43,6 +43,34 @@ class QueryExpressionFilterTest extends TestCase
         )));
     }
 
+    public function testNestedAttributeValue()
+    {
+        $filter = new QueryExpressionFilter(array(
+            'nested.attribute' => 250
+        ));
+
+        $this->assertFalse($filter->doesMatch(array()));
+        $this->assertFalse($filter->doesMatch((object)array()));
+
+        $this->assertTrue($filter->doesMatch(array(
+            'nested' => array(
+                'attribute' => 250
+            )
+        )));
+
+        $this->assertTrue($filter->doesMatch((object)array(
+            'nested' => (object)array(
+                'attribute' => 250
+            )
+        )));
+
+        $this->assertFalse($filter->doesMatch(array(
+            'nested' => array(
+                'attribute' => 300
+            )
+        )));
+    }
+
     public function testAttributeListOfValues()
     {
         $filter = new QueryExpressionFilter(array(
@@ -121,6 +149,26 @@ class QueryExpressionFilterTest extends TestCase
         )));
     }
 
+    public function testAndStdObject()
+    {
+        $filter = new QueryExpressionFilter((object)array(
+            '$and' => (object)array(
+                'id' => 100,
+                'name' => 'Test'
+            )
+        ));
+
+        $this->assertTrue($filter->doesMatch((object)array(
+            'id' => 100,
+            'name' => 'Test'
+        )));
+
+        $this->assertFalse($filter->doesMatch((object)array(
+            'id' => 100,
+            'name' => 'invalid'
+        )));
+    }
+
     public function testOrList()
     {
         $filter = new QueryExpressionFilter(array(
@@ -194,6 +242,15 @@ class QueryExpressionFilterTest extends TestCase
         $this->assertTrue($filter->doesMatch(array('id' => 100)));
     }
 
+    public function testEmptyOrObjectAlwaysMatches()
+    {
+        $filter = new QueryExpressionFilter((object)array(
+            '$or' => (object)array()
+        ));
+
+        $this->assertTrue($filter->doesMatch((object)array('id' => 100)));
+    }
+
     public function testEmptyNotNeverMatches()
     {
         $filter = new QueryExpressionFilter(array(
@@ -208,20 +265,6 @@ class QueryExpressionFilterTest extends TestCase
         $filter = new QueryExpressionFilter(array(
             '!$and' => array()
         ));
-
-        $this->assertFalse($filter->doesMatch(array('id' => 100)));
-    }
-
-    public function testTrueAlwaysMatches()
-    {
-        $filter = new QueryExpressionFilter(true);
-
-        $this->assertTrue($filter->doesMatch(array('id' => 100)));
-    }
-
-    public function testFalseNeverMatches()
-    {
-        $filter = new QueryExpressionFilter(false);
 
         $this->assertFalse($filter->doesMatch(array('id' => 100)));
     }
@@ -382,4 +425,66 @@ class QueryExpressionFilterTest extends TestCase
         )));
     }
 
+    /**
+     * @dataProvider dpFetchValue
+     */
+    public function testFetchValue($data, $fetch, $expected)
+    {
+        $filter = new QueryExpressionFilter(array());
+        $method = new \ReflectionMethod($filter, 'fetchValue');
+        $method->setAccessible(true);
+
+        $this->assertEquals(
+            $expected,
+            $method->invoke($filter, $data, $fetch)
+        );
+    }
+
+    public function dpFetchValue()
+    {
+        return array(
+            array(
+                array('id' => 1),
+                'id',
+                1
+            ),
+            array(
+                array(
+                    'org' => array(
+                        'peoples' => array(
+                            'john' => array(
+                                'weight' => 80
+                            )
+                        )
+                    )
+                ),
+                'org.peoples.john',
+                array(
+                    'weight' => 80
+                )
+            ),
+            array(
+                array(
+                    'org' => array(
+                        'peoples' => array(
+                            'john' => array(
+                                'weight' => 80
+                            )
+                        ),
+                        'computers' => array(
+                            'pc' => 'Intel',
+                            'macbook' => 'Macbook Pro'
+                        )
+                    )
+                ),
+                'org.computers.pc',
+                'Intel'
+            ),
+            array(
+                array('id' => 1),
+                'unexpected',
+                null
+            ),
+        );
+    }
 }
