@@ -124,21 +124,25 @@ class QueryExpressionFilter implements Filter
             return $this->matchComparator($data, $column, $expectation);
         }
 
-        $expectedValue = $expectation;
-        $comparator = '$is';
-
-        if ($this->isVector($expectedValue)) {
-            // list of possible values
-            $comparator = '$in';
-        } elseif ($this->isObject($expectedValue)) {
-            // custom comparator ('>', '<', ...)
-            $comparator = key($expectedValue);
-            $expectedValue = reset($expectedValue);
+        if ($this->isVector($expectation)) {
+            // L2 simple list matching
+            $expectation = array('$in' => $expectation);
+        } elseif (!$this->isObject($expectation)) {
+            // L2 simple scalar matching
+            $expectation = array('$is' => $expectation);
         }
 
         $actualValue = $this->fetchValue($data, $column);
 
-        return $this->matchComparator($actualValue, $comparator, $expectedValue);
+        foreach ($expectation as $comparator => $expectedValue) {
+            $ret = $this->matchComparator($actualValue, $comparator, $expectedValue);
+
+            if (!$ret) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private function fetchValue($data, $column)
