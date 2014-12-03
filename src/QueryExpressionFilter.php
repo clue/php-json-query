@@ -149,18 +149,17 @@ class QueryExpressionFilter implements Filter
     {
         $path = explode($this->selectorSeparator, $column);
 
-        $current = $data;
         foreach ($path as $field) {
-            if (is_array($current) && isset($current[$field])) {
-                $current = $current[$field];
-            } elseif (is_object($current) && isset($current->$field)) {
-                $current = $current->$field;
+            if (is_array($data) && isset($data[$field])) {
+                $data = $data[$field];
+            } elseif (is_object($data) && isset($data->$field)) {
+                $data = $data->$field;
             } else {
                 return null;
             }
         }
 
-        return $current;
+        return $data;
     }
 
     /** @internal */
