@@ -30,26 +30,23 @@ class QueryExpressionFilter implements Filter
 
     private function matchOr($data, $filter)
     {
-        $empty = true;
         if ($this->isVector($filter)) {
             foreach ($filter as $element) {
                 if ($this->matchFilter($data, $element)) {
                     return true;
                 }
-                $empty = false;
             }
         } elseif ($this->isObject($filter)) {
             foreach ($filter as $key => $value) {
                 if ($this->matchValue($data, $key, $value)) {
                     return true;
                 }
-                $empty = false;
             }
         } else {
             throw new DomainException('Invalid data type for $or combinator');
         }
 
-        return $empty;
+        return false;
     }
 
     private function matchAnd($data, $filter)
