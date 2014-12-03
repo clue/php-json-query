@@ -9,9 +9,49 @@ class QueryExpressionFilter implements Filter
     private $queryExpression;
     private $selectorSeparator = '.';
 
+    private $comparators = array();
+
     public function __construct($queryExpression)
     {
         $this->queryExpression = $queryExpression;
+
+        $that = $this;
+        $this->comparators = array(
+            '$is' => function ($actualValue, $expectedValue) {
+                return ($actualValue === $expectedValue);
+            },
+            '$in' => function ($actualValue, $expectedValue) {
+                return in_array($actualValue, $expectedValue, true);
+            },
+            '$contains' => function ($actualValue, $expectedValue) use ($that) {
+                if ($that->isObject($actualValue)) {
+                    if (is_object($actualValue)) {
+                        return property_exists($actualValue, $expectedValue);
+                    } else {
+                        return array_key_exists($expectedValue, $actualValue);
+                    }
+                } elseif ($that->isVector($actualValue)) {
+                    return in_array($expectedValue, $actualValue, true);
+                } else {
+                    return (strpos($actualValue, $expectedValue) !== false);
+                }
+            },
+            '$lt' => function ($actualValue, $expectedValue) {
+                return ($actualValue < $expectedValue);
+            },
+            '$lte' => function ($actualValue, $expectedValue) {
+                return ($actualValue <= $expectedValue);
+            },
+            '$gt' => function ($actualValue, $expectedValue) {
+                return ($actualValue > $expectedValue);
+            },
+            '$gte' => function ($actualValue, $expectedValue) {
+                return ($actualValue >= $expectedValue);
+            },
+            '$not' => function ($actualValue, $expectedValue) use ($that) {
+                return !$that->matchComparator($actualValue, $that->isVector($expectedValue) ? '$in' : '$is', $expectedValue);
+            },
+        );
     }
 
     public function doesMatch($data)
@@ -94,46 +134,11 @@ class QueryExpressionFilter implements Filter
             // custom comparator ('>', '<', ...)
             $comparator = key($expectedValue);
             $expectedValue = reset($expectedValue);
-
-            if ($comparator === '$not') {
-                $comparator = ($this->isVector($expectedValue)) ? '!$in' : '!$is';
-            }
-
-            if ($comparator[0] === '!') {
-                $comparator = substr($comparator, 1);
-                return !$this->matchValue($data, $column, array($comparator => $expectedValue));
-            }
         }
 
         $actualValue = $this->fetchValue($data, $column);
 
-        if ($comparator === '$is') {
-            return ($actualValue === $expectedValue);
-        } elseif ($comparator === '$in') {
-            return in_array($actualValue, $expectedValue, true);
-        } elseif ($comparator === '$contains') {
-            if ($this->isObject($actualValue)) {
-                if (is_object($actualValue)) {
-                    return property_exists($actualValue, $expectedValue);
-                } else {
-                    return array_key_exists($expectedValue, $actualValue);
-                }
-            } elseif ($this->isVector($actualValue)) {
-                return in_array($expectedValue, $actualValue, true);
-            } else {
-                return (strpos($actualValue, $expectedValue) !== false);
-            }
-        } elseif ($comparator === '$lt') {
-            return ($actualValue < $expectedValue);
-        } elseif ($comparator === '$lte') {
-            return ($actualValue <= $expectedValue);
-        } elseif ($comparator === '$gt') {
-            return ($actualValue > $expectedValue);
-        } elseif ($comparator === '$gte') {
-            return ($actualValue >= $expectedValue);
-        } else {
-            throw new DomainException('Unknown comparator "' . $comparator . '" given');
-        }
+        return $this->matchComparator($actualValue, $comparator, $expectedValue);
     }
 
     private function fetchValue($data, $column)
@@ -154,12 +159,30 @@ class QueryExpressionFilter implements Filter
         return $current;
     }
 
-    private function isObject($value)
+    /** @internal */
+    public function matchComparator($actualValue, $comparator, $expectedValue)
+    {
+        $negate = false;
+        while ($comparator[0] === '!') {
+            $negate = !$negate;
+            $comparator = substr($comparator, 1);
+        }
+
+        if (!isset($this->comparators[$comparator])) {
+            throw new DomainException('Unknown comparator "' . $comparator . '" given');
+        }
+
+        return $this->comparators[$comparator]($actualValue, $expectedValue) XOR $negate;
+    }
+
+    /** @internal */
+    public function isObject($value)
     {
         return (is_object($value) || (is_array($value) && ($value === array() || !isset($value[0]))));
     }
 
-    private function isVector($value)
+    /** @internal */
+    public function isVector($value)
     {
         return ($value === array() || (is_array($value) && isset($value[0])));
     }

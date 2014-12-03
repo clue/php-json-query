@@ -329,6 +329,16 @@ class QueryExpressionFilterTest extends TestCase
         $this->assertTrue($filter->doesMatch(array('id' => 300)));
     }
 
+    public function testAttributeNotDoubleNegationIsValue()
+    {
+        $filter = new QueryExpressionFilter(array(
+            'id' => array('!!!!$is' => 100)
+        ));
+
+        $this->assertTrue($filter->doesMatch(array('id' => 100)));
+        $this->assertFalse($filter->doesMatch(array('id' => 300)));
+    }
+
     public function testAttributeNotInList()
     {
         $filter = new QueryExpressionFilter(array(
