@@ -470,6 +470,21 @@ class QueryExpressionFilterTest extends TestCase
         )));
     }
 
+    public function testMultipleOperators()
+    {
+        $filter = new QueryExpressionFilter(array(
+            'id' => array(
+                '$gte' => 100,
+                '$lt'  => 200
+            )
+        ));
+
+        $this->assertFalse($filter->doesMatch(array('id' => 99)));
+        $this->assertTrue($filter->doesMatch(array('id' => 100)));
+        $this->assertTrue($filter->doesMatch(array('id' => 199)));
+        $this->assertFalse($filter->doesMatch(array('id' => 200)));
+    }
+
     /**
      * @expectedException DomainException
      */
