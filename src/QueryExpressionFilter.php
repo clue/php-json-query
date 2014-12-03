@@ -48,6 +48,9 @@ class QueryExpressionFilter implements Filter
             '$gte' => function ($actualValue, $expectedValue) {
                 return ($actualValue >= $expectedValue);
             },
+            '$not' => function ($actualValue, $expectedValue) use ($that) {
+                return $that->matchComparator($actualValue, $that->isVector($expectedValue) ? '!$in' : '!$is', $expectedValue);
+            },
         );
     }
 
@@ -131,10 +134,6 @@ class QueryExpressionFilter implements Filter
             // custom comparator ('>', '<', ...)
             $comparator = key($expectedValue);
             $expectedValue = reset($expectedValue);
-
-            if ($comparator === '$not') {
-                $comparator = ($this->isVector($expectedValue)) ? '!$in' : '!$is';
-            }
         }
 
         $actualValue = $this->fetchValue($data, $column);
