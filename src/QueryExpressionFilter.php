@@ -135,20 +135,11 @@ class QueryExpressionFilter implements Filter
             if ($comparator === '$not') {
                 $comparator = ($this->isVector($expectedValue)) ? '!$in' : '!$is';
             }
-
-            if ($comparator[0] === '!') {
-                $comparator = substr($comparator, 1);
-                return !$this->matchValue($data, $column, array($comparator => $expectedValue));
-            }
         }
 
         $actualValue = $this->fetchValue($data, $column);
 
-        if (!isset($this->comparators[$comparator])) {
-            throw new DomainException('Unknown comparator "' . $comparator . '" given');
-        }
-
-        return $this->comparators[$comparator]($actualValue, $expectedValue);
+        return $this->matchComparator($actualValue, $comparator, $expectedValue);
     }
 
     private function fetchValue($data, $column)
@@ -167,6 +158,24 @@ class QueryExpressionFilter implements Filter
         }
 
         return $current;
+    }
+
+    /** @internal */
+    public function matchComparator($actualValue, $comparator, $expectedValue)
+    {
+        $negate = false;
+        if ($comparator[0] === '!') {
+            $negate = true;
+            $comparator = substr($comparator, 1);
+        }
+
+        if (!isset($this->comparators[$comparator])) {
+            throw new DomainException('Unknown comparator "' . $comparator . '" given');
+        }
+
+        $ret = $this->comparators[$comparator]($actualValue, $expectedValue);
+
+        return ($negate) ? !$ret : $ret;
     }
 
     /** @internal */
