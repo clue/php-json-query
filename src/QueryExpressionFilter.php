@@ -49,7 +49,7 @@ class QueryExpressionFilter implements Filter
                 return ($actualValue >= $expectedValue);
             },
             '$not' => function ($actualValue, $expectedValue) use ($that) {
-                return $that->matchComparator($actualValue, $that->isVector($expectedValue) ? '!$in' : '!$is', $expectedValue);
+                return !$that->matchComparator($actualValue, $that->isVector($expectedValue) ? '$in' : '$is', $expectedValue);
             },
         );
     }
