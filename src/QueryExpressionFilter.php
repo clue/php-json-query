@@ -121,7 +121,7 @@ class QueryExpressionFilter implements Filter
         } elseif ($column[0] === '!') {
             return !$this->matchValue($data, substr($column, 1), $expectation);
         } elseif ($column[0] === '$') {
-            throw new DomainException('Unknown combinator "' . $column . '"');
+            return $this->matchComparator($data, $column, $expectation);
         }
 
         $expectedValue = $expectation;
