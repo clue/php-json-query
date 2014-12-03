@@ -431,6 +431,45 @@ class QueryExpressionFilterTest extends TestCase
         )));
     }
 
+    public function testRootMatchingContainsAssoc()
+    {
+        $filter = new QueryExpressionFilter(array(
+            '$contains' => 'test'
+        ));
+
+        $this->assertTrue($filter->doesMatch(array(
+            'test' => true
+        )));
+        $this->assertTrue($filter->doesMatch(array(
+            'test' => false
+        )));
+        $this->assertTrue($filter->doesMatch(array(
+            'test' => null
+        )));
+
+        $this->assertFalse($filter->doesMatch(array(
+            'not' => 1
+        )));
+    }
+
+    public function testRootMatchingContainsArray()
+    {
+        $filter = new QueryExpressionFilter(array(
+            '$contains' => 'test'
+        ));
+
+        $this->assertTrue($filter->doesMatch(array(
+            'a',
+            'test'
+        )));
+
+        $this->assertFalse($filter->doesMatch(array(
+            'not'
+        )));
+        $this->assertFalse($filter->doesMatch(array(
+        )));
+    }
+
     /**
      * @expectedException DomainException
      */
