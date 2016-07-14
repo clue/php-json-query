@@ -18,8 +18,6 @@ $filter->doesMatch(array('name' => 'Tester', 'age' => 20))); // true
 $filter->doesMatch(array('name' => 'Tester', 'age' => 22))); // false
 ```
 
-See also the [examples](examples).
-
 ## Install
 
 The recommended way to install this library is [through composer](http://getcomposer.org). [New to composer?](http://getcomposer.org/doc/00-intro.md)
