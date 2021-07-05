@@ -1,4 +1,7 @@
-# clue/json-query [![Build Status](https://travis-ci.org/clue/php-json-query.svg?branch=master)](https://travis-ci.org/clue/php-json-query)
+# clue/json-query 
+
+[![Build Status](https://travis-ci.org/clue/php-json-query.svg?branch=master)](https://travis-ci.org/clue/php-json-query)
+[![installs on Packagist](https://img.shields.io/packagist/dt/clue/json-query?color=blue&label=installs%20on%20Packagist)](https://packagist.org/packages/clue/json-query)
 
 An implementation of the [JSON Query Language](https://github.com/clue/json-query-language) specification in PHP.
 
